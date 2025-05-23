@@ -3,7 +3,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAbo1EsOSfr_VgyNv3yc9ZMBrqw_OCb38Q",
   authDomain: "bihan-b2d7e.firebaseapp.com",
   projectId: "bihan-b2d7e",
-  storageBucket: "bihan-b2d7e.firebasestorage.app",
+  storageBucket: "bihan-b2d7e.appspot.com",
   messagingSenderId: "1062687694186",
   appId: "1:1062687694186:web:c65011907927b25efa5913",
   measurementId: "G-3YDZKCY70W"
@@ -127,7 +127,7 @@ function loadMessages() {
 // Display message function
 function displayMessage(message) {
     const user = auth.currentUser;
-    const isSent = message.sender === user.email;
+    const isSent = user && message.sender === user.email;
     
     const messageElement = document.createElement('div');
     messageElement.classList.add('message');
