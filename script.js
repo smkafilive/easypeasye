@@ -171,7 +171,7 @@ generateBtn.addEventListener('click', function() {
     coverPage.scrollIntoView({ behavior: 'smooth' });
 });
 
-// Download as PDF
+// Download as PDF (FIXED: ensures all images loaded and robust PDF capture)
 downloadBtn.addEventListener('click', function() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({
@@ -179,31 +179,42 @@ downloadBtn.addEventListener('click', function() {
         unit: 'mm',
         format: 'a4'
     });
-    
-    // Use html2canvas to capture the cover page
+
+    // Ensure logo image is loaded before PDF generation
+    const logo = document.getElementById('universityLogo');
+    if (logo && !logo.complete) {
+        logo.onload = () => downloadBtn.click();
+        alert('Logo is still loading. Please try again in a moment.');
+        return;
+    }
+
     html2canvas(coverPage, {
-        scale: 2,
+        scale: 2, // Higher for better quality
         logging: false,
         useCORS: true,
-        allowTaint: true
+        allowTaint: true,
+        foreignObjectRendering: true,
+        onclone: (clonedDoc) => {
+            clonedDoc.getElementById('coverPage').style.visibility = 'visible';
+        }
     }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
         const imgWidth = 210; // A4 width in mm
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        
         doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
         doc.save('SFMU_Cover_Page.pdf');
+    }).catch(error => {
+        console.error("Error generating PDF:", error);
+        alert("Failed to generate PDF. Ensure all images are loaded and try again.");
     });
 });
 
-// Animation on scroll
+// Animation on scroll (optional UI effect)
 window.addEventListener('scroll', function() {
     const elements = document.querySelectorAll('.form-group, .cover-page, footer');
-    
     elements.forEach(element => {
         const elementPosition = element.getBoundingClientRect().top;
         const screenPosition = window.innerHeight / 1.2;
-        
         if (elementPosition < screenPosition) {
             element.style.opacity = '1';
             element.style.transform = 'translateY(0)';
