@@ -1,226 +1,158 @@
-// Faculty data
-const facultyData = {
-    "CSE": [
-        "Fazle Rabby, Assistant Professor & Head",
-        "Fazle Rabbi Rushu, Assistant Professor",
-        "Afrin Jahan Chowdhury, Lecturer",
-        "Md. Rafiuzzaman, Lecturer",
-        "Afia Farzana, Lecturer",
-        "MD. Abdul Hye, Professor & Dean, Engineering Faculty"
-    ],
-    "EEE": [
-        "Junaid Bin Fakhrul Islam, Assistant Professor & Head",
-        "Md. Hasanuzzaman, Assistant Professor",
-        "Md. Al-Arman Chowdhury Asif, Lecturer",
-        "Sheikh Md. Shafiqul Islam, Lecturer"
-    ],
-    "BBA": [
-        "Rashel Sheikh, Associate Professor & Dean",
-        "Md. Maksodul Haque Sawrov, Assistant Professor & Head",
-        "Md. Tareq Hasan, Assistant Professor",
-        "Md. Mirajul Islam, Assistant Professor",
-        "Bithi Rani Debnath, Lecturer"
-    ],
-    "LAW": [
-        "G.M. Ikramul Kabir, Assistant Professor & Head",
-        "Hadiuzzaman, Assistant Professor",
-        "Md. Taibur Rahman, Lecturer",
-        "Tangila Yasmeen, Lecturer",
-        "Happy Akter, Lecturer",
-        "Mubtasim Alam Musavee, Lecturer"
-    ],
-    "English": [
-        "Md. Amirul Mumeneen, Associate Professor & Head",
-        "Md. Shaon Akter, Assistant Professor",
-        "Mst. Tanna Khatun, Assistant Professor",
-        "Md. Naymul Islam, Lecturer"
-    ],
-    "Economics": [
-        "Md. Minhaz Uddin, Assistant Professor & Head",
-        "Md. Hasanur Rahman, Lecturer"
-    ],
-    "Political Science": [
-        "Sidratul Montaha, Assistant Professor & Head",
-        "Afroza Yasmin Mitu, Lecturer",
-        "Dil Noshina Jannat, Lecturer",
-        "Md. Mehabub Hasan, Lecturer"
-    ]
+// Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyAbo1EsOSfr_VgyNv3yc9ZMBrqw_OCb38Q",
+  authDomain: "bihan-b2d7e.firebaseapp.com",
+  projectId: "bihan-b2d7e",
+  storageBucket: "bihan-b2d7e.firebasestorage.app",
+  messagingSenderId: "1062687694186",
+  appId: "1:1062687694186:web:c65011907927b25efa5913",
+  measurementId: "G-3YDZKCY70W"
 };
 
-// Department full names
-const departmentFullNames = {
-    "CSE": "Computer Science & Engineering",
-    "EEE": "Electrical & Electronic Engineering",
-    "BBA": "Business Administration",
-    "LAW": "Law",
-    "Economics": "Economics",
-    "English": "English",
-    "Political Science": "Political Science"
-};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // DOM elements
-const departmentSelect = document.getElementById('department');
-const submittedToSelect = document.getElementById('submittedTo');
-const customFacultyInput = document.getElementById('customFaculty');
-const generateBtn = document.getElementById('generateBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const coverPage = document.getElementById('coverPage');
+const authContainer = document.getElementById('auth-container');
+const chatContainer = document.getElementById('chat-container');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const loginBtn = document.getElementById('login-btn');
+const signupBtn = document.getElementById('signup-btn');
+const authMessage = document.getElementById('auth-message');
+const logoutBtn = document.getElementById('logout-btn');
+const messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+const messagesContainer = document.getElementById('messages');
+const currentRoomDisplay = document.getElementById('current-room');
+const userNameDisplay = document.getElementById('user-name');
+const rooms = document.querySelectorAll('.room');
 
-// Form display elements
-const reportTypeDisplay = document.getElementById('reportTypeDisplay');
-const reportTitleDisplay = document.getElementById('reportTitleDisplay');
-const courseTitleDisplay = document.getElementById('courseTitleDisplay');
-const courseCodeDisplay = document.getElementById('courseCodeDisplay');
-const submittedToDisplay = document.getElementById('submittedToDisplay');
-const facultyDeptDisplay = document.getElementById('facultyDeptDisplay');
-const studentNameDisplay = document.getElementById('studentNameDisplay');
-const studentIdDisplay = document.getElementById('studentIdDisplay');
-const batchDisplay = document.getElementById('batchDisplay');
-const studentDeptDisplay = document.getElementById('studentDeptDisplay');
-const submissionDateDisplay = document.getElementById('submissionDateDisplay');
+// Current room
+let currentRoom = 'general';
 
-// Initialize date picker with today's date
-document.getElementById('submissionDate').valueAsDate = new Date();
-
-// Department change event
-departmentSelect.addEventListener('change', function() {
-    const selectedDept = this.value;
-    submittedToSelect.innerHTML = '';
-    submittedToSelect.disabled = !selectedDept;
-    customFacultyInput.style.display = 'none';
-    
-    if (selectedDept) {
-        // Add default option
-        const defaultOption = document.createElement('option');
-        defaultOption.value = '';
-        defaultOption.textContent = 'Select Faculty';
-        submittedToSelect.appendChild(defaultOption);
-        
-        // Add faculty options
-        facultyData[selectedDept].forEach(faculty => {
-            const option = document.createElement('option');
-            option.value = faculty;
-            option.textContent = faculty;
-            submittedToSelect.appendChild(option);
-        });
-        
-        // Add custom option
-        const customOption = document.createElement('option');
-        customOption.value = 'custom';
-        customOption.textContent = 'Custom Faculty';
-        submittedToSelect.appendChild(customOption);
-    }
-});
-
-// Submitted To change event
-submittedToSelect.addEventListener('change', function() {
-    if (this.value === 'custom') {
-        customFacultyInput.style.display = 'block';
-        customFacultyInput.value = '';
+// Check auth state
+auth.onAuthStateChanged(user => {
+    if (user) {
+        // User is signed in
+        authContainer.style.display = 'none';
+        chatContainer.style.display = 'flex';
+        userNameDisplay.textContent = user.email.split('@')[0];
+        loadMessages();
     } else {
-        customFacultyInput.style.display = 'none';
+        // User is signed out
+        authContainer.style.display = 'flex';
+        chatContainer.style.display = 'none';
     }
 });
 
-// Generate cover page
-generateBtn.addEventListener('click', function() {
-    // Get form values
-    const reportType = document.getElementById('reportType').value;
-    const reportTitle = document.getElementById('reportTitle').value;
-    const courseTitle = document.getElementById('courseTitle').value;
-    const courseCode = document.getElementById('courseCode').value;
-    const department = document.getElementById('department').value;
-    const submittedTo = submittedToSelect.value === 'custom' ? customFacultyInput.value : submittedToSelect.value;
-    const studentName = document.getElementById('studentName').value;
-    const studentId = document.getElementById('studentId').value;
-    const batch = document.getElementById('batch').value;
-    const studentDept = document.getElementById('studentDept').value;
-    const submissionDate = document.getElementById('submissionDate').value;
+// Login function
+loginBtn.addEventListener('click', () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
     
-    // Validate required fields
-    if (!reportTitle || !courseTitle || !courseCode || !department || !submittedTo || !studentName || !studentId || !batch || !submissionDate) {
-        alert('Please fill all required fields!');
-        return;
+    auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+            authMessage.textContent = '';
+        })
+        .catch(error => {
+            authMessage.textContent = error.message;
+        });
+});
+
+// Signup function
+signupBtn.addEventListener('click', () => {
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    
+    auth.createUserWithEmailAndPassword(email, password)
+        .then(() => {
+            authMessage.textContent = '';
+        })
+        .catch(error => {
+            authMessage.textContent = error.message;
+        });
+});
+
+// Logout function
+logoutBtn.addEventListener('click', () => {
+    auth.signOut();
+});
+
+// Send message function
+function sendMessage() {
+    const message = messageInput.value.trim();
+    if (message === '') return;
+    
+    const user = auth.currentUser;
+    if (!user) return;
+    
+    db.collection('rooms').doc(currentRoom).collection('messages').add({
+        text: message,
+        sender: user.email,
+        senderName: user.email.split('@')[0],
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    })
+    .then(() => {
+        messageInput.value = '';
+    })
+    .catch(error => {
+        console.error('Error sending message: ', error);
+    });
+}
+
+sendBtn.addEventListener('click', sendMessage);
+messageInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        sendMessage();
     }
-    
-    // Format date
-    const dateObj = new Date(submissionDate);
-    const formattedDate = dateObj.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    
-    // Update cover page
-    reportTypeDisplay.textContent = reportType;
-    reportTitleDisplay.textContent = reportTitle;
-    courseTitleDisplay.textContent = `Course Title: ${courseTitle}`;
-    courseCodeDisplay.textContent = `Course Code: ${courseCode}`;
-    submittedToDisplay.textContent = submittedTo;
-    facultyDeptDisplay.textContent = `Department of ${departmentFullNames[department]}, SFMU`;
-    studentNameDisplay.textContent = `Name: ${studentName}`;
-    studentIdDisplay.textContent = `ID: ${studentId}`;
-    batchDisplay.textContent = `Batch: ${batch}`;
-    studentDeptDisplay.textContent = `Department of ${departmentFullNames[studentDept]}`;
-    submissionDateDisplay.textContent = `Date: ${formattedDate}`;
-    
-    // Enable download button
-    downloadBtn.disabled = false;
-    
-    // Scroll to preview
-    coverPage.scrollIntoView({ behavior: 'smooth' });
 });
 
-// Download as PDF (FIXED: ensures all images loaded and robust PDF capture)
-downloadBtn.addEventListener('click', function() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-    });
+// Load messages function
+function loadMessages() {
+    messagesContainer.innerHTML = '';
+    
+    db.collection('rooms').doc(currentRoom).collection('messages')
+        .orderBy('timestamp')
+        .onSnapshot(snapshot => {
+            snapshot.docChanges().forEach(change => {
+                if (change.type === 'added') {
+                    displayMessage(change.doc.data());
+                }
+            });
+        });
+}
 
-    // Ensure logo image is loaded before PDF generation
-    const logo = document.getElementById('universityLogo');
-    if (logo && !logo.complete) {
-        logo.onload = () => downloadBtn.click();
-        alert('Logo is still loading. Please try again in a moment.');
-        return;
-    }
+// Display message function
+function displayMessage(message) {
+    const user = auth.currentUser;
+    const isSent = message.sender === user.email;
+    
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.classList.add(isSent ? 'sent' : 'received');
+    
+    messageElement.innerHTML = `
+        ${!isSent ? `<div class="message-sender">${message.senderName}</div>` : ''}
+        <div class="message-content">${message.text}</div>
+    `;
+    
+    messagesContainer.appendChild(messageElement);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
 
-    html2canvas(coverPage, {
-        scale: 2, // Higher for better quality
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        foreignObjectRendering: true,
-        onclone: (clonedDoc) => {
-            clonedDoc.getElementById('coverPage').style.visibility = 'visible';
-        }
-    }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = 210; // A4 width in mm
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-        doc.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-        doc.save('SFMU_Cover_Page.pdf');
-    }).catch(error => {
-        console.error("Error generating PDF:", error);
-        alert("Failed to generate PDF. Ensure all images are loaded and try again.");
-    });
-});
-
-// Animation on scroll (optional UI effect)
-window.addEventListener('scroll', function() {
-    const elements = document.querySelectorAll('.form-group, .cover-page, footer');
-    elements.forEach(element => {
-        const elementPosition = element.getBoundingClientRect().top;
-        const screenPosition = window.innerHeight / 1.2;
-        if (elementPosition < screenPosition) {
-            element.style.opacity = '1';
-            element.style.transform = 'translateY(0)';
-        }
+// Change room function
+rooms.forEach(room => {
+    room.addEventListener('click', () => {
+        // Remove active class from all rooms
+        rooms.forEach(r => r.classList.remove('active'));
+        // Add active class to clicked room
+        room.classList.add('active');
+        // Update current room
+        currentRoom = room.dataset.room;
+        currentRoomDisplay.textContent = currentRoom.charAt(0).toUpperCase() + currentRoom.slice(1);
+        // Load messages for new room
+        loadMessages();
     });
 });
-
-// Initial animation trigger
-window.dispatchEvent(new Event('scroll'));
