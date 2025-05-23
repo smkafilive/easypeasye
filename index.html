@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Peasy - SFMU Cover Page Maker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="title">Easy Peasy</h1>
+            <p class="subtitle">SFMU Cover Page Maker</p>
+        </header>
+
+        <div class="form-container">
+            <div class="input-section">
+                <div class="form-group">
+                    <label for="reportType">Report Type:</label>
+                    <select id="reportType" class="form-control">
+                        <option value="Lab Report">Lab Report</option>
+                        <option value="Assignment">Assignment</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="reportTitle">Report/Assignment Title:</label>
+                    <input type="text" id="reportTitle" class="form-control" placeholder="Enter report/assignment title">
+                </div>
+
+                <div class="form-group">
+                    <label for="courseTitle">Course Title:</label>
+                    <input type="text" id="courseTitle" class="form-control" placeholder="Enter course title">
+                </div>
+
+                <div class="form-group">
+                    <label for="courseCode">Course Code:</label>
+                    <input type="text" id="courseCode" class="form-control" placeholder="Enter course code">
+                </div>
+
+                <div class="form-group">
+                    <label for="department">Department:</label>
+                    <select id="department" class="form-control">
+                        <option value="">Select Department</option>
+                        <option value="CSE">Computer Science & Engineering (CSE)</option>
+                        <option value="EEE">Electrical & Electronic Engineering (EEE)</option>
+                        <option value="BBA">Business Administration (BBA)</option>
+                        <option value="LAW">Law</option>
+                        <option value="Economics">Economics</option>
+                        <option value="English">English</option>
+                        <option value="Political Science">Political Science</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="facultyContainer">
+                    <label for="submittedTo">Submitted To:</label>
+                    <select id="submittedTo" class="form-control" disabled>
+                        <option value="">Select Department First</option>
+                    </select>
+                    <input type="text" id="customFaculty" class="form-control" placeholder="Or enter faculty name manually" style="display: none; margin-top: 5px;">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentName">Your Name:</label>
+                    <input type="text" id="studentName" class="form-control" placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentId">Your ID:</label>
+                    <input type="text" id="studentId" class="form-control" placeholder="Enter your ID">
+                </div>
+
+                <div class="form-group">
+                    <label for="batch">Batch:</label>
+                    <input type="text" id="batch" class="form-control" placeholder="Enter your batch">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentDept">Your Department:</label>
+                    <select id="studentDept" class="form-control">
+                        <option value="CSE">Computer Science & Engineering (CSE)</option>
+                        <option value="EEE">Electrical & Electronic Engineering (EEE)</option>
+                        <option value="BBA">Business Administration (BBA)</option>
+                        <option value="LAW">Law</option>
+                        <option value="Economics">Economics</option>
+                        <option value="English">English</option>
+                        <option value="Political Science">Political Science</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="submissionDate">Submission Date:</label>
+                    <input type="date" id="submissionDate" class="form-control">
+                </div>
+
+                <button id="generateBtn" class="btn">Generate Cover Page</button>
+            </div>
+
+            <div class="preview-section">
+                <div id="coverPage" class="cover-page">
+                    <div class="logo-container">
+                        <img id="universityLogo" src="sfmu.png" alt="SFMU Logo">
+                    </div>
+                    <div class="university-name">Sheikh Fazilatunnesa Mujib University</div>
+                    
+                    <div class="report-info">
+                        <div id="reportTypeDisplay" class="report-type"></div>
+                        <div id="reportTitleDisplay" class="report-title"></div>
+                        <div class="course-info">
+                            <span id="courseTitleDisplay"></span>
+                            <span id="courseCodeDisplay"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="faculty-info">
+                        <div class="section-title">Submitted To</div>
+                        <div id="submittedToDisplay" class="faculty-name"></div>
+                        <div id="facultyDeptDisplay" class="faculty-dept"></div>
+                    </div>
+                    
+                    <div class="student-info">
+                        <div class="section-title">Submitted By</div>
+                        <div id="studentNameDisplay" class="student-name"></div>
+                        <div id="studentIdDisplay" class="student-id"></div>
+                        <div id="batchDisplay" class="student-batch"></div>
+                        <div id="studentDeptDisplay" class="student-dept"></div>
+                    </div>
+                    
+                    <div id="submissionDateDisplay" class="submission-date"></div>
+                </div>
+                
+                <button id="downloadBtn" class="btn download-btn" disabled>Download as PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Developed by S.M.KAFI</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
